@@ -1,6 +1,5 @@
 <?php
 
-use App\Http\Controllers\Subscription\GetSubscriptionDetailController;
 use App\Exceptions\ShopifyProductCreatorException;
 use App\Lib\AuthRedirection;
 use App\Lib\EnsureBilling;
@@ -144,5 +143,3 @@ Route::post('/api/webhooks', function (Request $request) {
         return response()->json(['message' => "Got an exception when handling '$topic' webhook"], 500);
     }
 });
-
-Route::get('/api/subscription-detail', GetSubscriptionDetailController::class)->middleware('shopify.auth');

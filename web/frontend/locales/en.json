@@ -34,9 +34,5 @@
     },
     "title": "Product Counter",
     "totalProductsHeading": "TOTAL PRODUCTS"
-  },
-  "SubscriptionCard": {
-    "subscribedPlanHeading": "Subscribed Plan",
-    "subscribedChargeHeading": "Subscribed Charge"
   }
 }
