@@ -147,7 +147,7 @@ class EnsureBilling
                         ],
                     ],
                     "returnUrl" => $returnUrl,
-                    "test" => !self::isProd(),
+                    "test" => true,
                 ],
             ]
         );
