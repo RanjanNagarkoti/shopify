@@ -1,5 +1,7 @@
 <?php
 
+
+use App\Http\Controllers\ShopifyCollectionController;
 use App\Http\Controllers\Subscription\GetSubscriptionDetailController;
 use App\Exceptions\ShopifyProductCreatorException;
 use App\Lib\AuthRedirection;
@@ -146,3 +148,7 @@ Route::post('/api/webhooks', function (Request $request) {
 });
 
 Route::get('/api/subscription-detail', GetSubscriptionDetailController::class)->middleware('shopify.auth');
+
+Route::apiResource('/api/shopify-collections', ShopifyCollectionController::class)->middleware('shopify.auth');
+
+Route::get('/api/csrf-token', fn () => ['csrf_token' => csrf_token()]);
