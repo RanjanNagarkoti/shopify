@@ -8,7 +8,8 @@
     "yourAppIsReadyToExplore": "Your app is ready to explore! It contains everything you need to get started including the <PolarisLink>Polaris design system</PolarisLink>, <AdminApiLink>Shopify Admin API</AdminApiLink>, and <AppBridgeLink>App Bridge</AppBridgeLink> UI library and components."
   },
   "NavigationMenu": {
-    "pageName": "Page name"
+    "pageName": "Page name",
+    "shopifyCollection": "Shopify Collection"
   },
   "NotFound": {
     "description": "Check the URL and try again, or use the search bar to find what you need.",
@@ -20,6 +21,13 @@
     "primaryAction": "Primary action",
     "secondaryAction": "Secondary action",
     "title": "Page name"
+  },
+  "ShopifyCollection": {
+    "body": "Body",
+    "heading": "Heading",
+    "primaryAction": "Primary action",
+    "secondaryAction": "Secondary action",
+    "title": "Shopfy Collection"
   },
   "ProductsCard": {
     "description": "Sample products are created with a default title and price. You can remove them at any time.",

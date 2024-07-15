@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Subscription;
 
+use App\Jobs\ImportSmartShopifyCollectionJob;
+use App\Jobs\ImportCustomShopifyCollectionJob;
 use App\Http\Resources\SubscribtionDetailResource;
 use App\Lib\EnsureBilling;
 use App\Http\Controllers\Controller;
@@ -26,6 +28,9 @@ class GetSubscriptionDetailController extends Controller
         if ($subscription[0] !== true) {
             return false;
         }
+
+        ImportCustomShopifyCollectionJob::dispatch($session);
+        ImportSmartShopifyCollectionJob::dispatch($session);
 
         return new SubscribtionDetailResource((Object) $config);
     }
