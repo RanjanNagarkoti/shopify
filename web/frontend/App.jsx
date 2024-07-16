@@ -30,6 +30,10 @@ export default function App() {
                   label: t("NavigationMenu.shopifyCollection"),
                   destination: "/ShopifyCollection",
                 },
+                {
+                  label: t("NavigationMenu.shopifyProduct"),
+                  destination: "/ShopifyProduct",
+                },
               ]}
             />
             <Routes pages={pages} />
