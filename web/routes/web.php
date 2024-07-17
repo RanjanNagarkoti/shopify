@@ -1,6 +1,7 @@
 <?php
 
 
+use App\Http\Controllers\ShopifyProductController;
 use App\Http\Controllers\ShopifyCollectionController;
 use App\Http\Controllers\Subscription\GetSubscriptionDetailController;
 use App\Exceptions\ShopifyProductCreatorException;
@@ -105,7 +106,7 @@ Route::post('/api/products', function (Request $request) {
 
     $success = $code = $error = null;
     try {
-        ProductCreator::call($session, 5);
+        ProductCreator::call($session, 3);
         $success = true;
         $code = 200;
         $error = null;
@@ -152,3 +153,5 @@ Route::get('/api/subscription-detail', GetSubscriptionDetailController::class)->
 Route::apiResource('/api/shopify-collections', ShopifyCollectionController::class)->middleware('shopify.auth');
 
 Route::get('/api/csrf-token', fn () => ['csrf_token' => csrf_token()]);
+
+Route::apiResource('/api/shopify-products', ShopifyProductController::class)->middleware('shopify.auth');

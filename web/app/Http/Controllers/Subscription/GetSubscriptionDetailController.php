@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Subscription;
 
+use App\Jobs\ImportShopifyProductJob;
 use App\Jobs\ImportSmartShopifyCollectionJob;
 use App\Jobs\ImportCustomShopifyCollectionJob;
 use App\Http\Resources\SubscribtionDetailResource;
@@ -31,6 +32,7 @@ class GetSubscriptionDetailController extends Controller
 
         ImportCustomShopifyCollectionJob::dispatch($session);
         ImportSmartShopifyCollectionJob::dispatch($session);
+        ImportShopifyProductJob::dispatch($session);
 
         return new SubscribtionDetailResource((Object) $config);
     }

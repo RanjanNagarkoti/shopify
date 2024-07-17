@@ -9,7 +9,8 @@
   },
   "NavigationMenu": {
     "pageName": "Page name",
-    "shopifyCollection": "Shopify Collection"
+    "shopifyCollection": "Shopify Collection",
+    "shopifyProduct": "Shopify Product"
   },
   "NotFound": {
     "description": "Check the URL and try again, or use the search bar to find what you need.",
@@ -28,6 +29,13 @@
     "primaryAction": "Primary action",
     "secondaryAction": "Secondary action",
     "title": "Shopfy Collection"
+  },
+  "ShopifyProduct": {
+    "body": "Body",
+    "heading": "Heading",
+    "primaryAction": "Primary action",
+    "secondaryAction": "Secondary action",
+    "title": "Shopify Products"
   },
   "ProductsCard": {
     "description": "Sample products are created with a default title and price. You can remove them at any time.",
