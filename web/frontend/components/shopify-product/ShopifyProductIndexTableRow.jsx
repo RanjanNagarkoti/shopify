@@ -39,7 +39,7 @@ const ShopifyProductIndexTableRow = ({ product, index }) => {
             </IndexTable.Cell>
             <IndexTable.Cell>
                 <Stack
-                    wrap={false}
+                    wrap={true}
                     spacing="extraTight"
                     distribution="fill"
                     alignment="center"

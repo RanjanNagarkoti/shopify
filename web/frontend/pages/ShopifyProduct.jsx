@@ -44,7 +44,7 @@ const ShopifyProduct = () => {
                     ) : (
                         <LegacyCard>
                             <ShopifyProductIndexTable products={data.data} />
-                            {data.length !== 0 && (
+                            {data.data.length !== 0 && (
                                 <ShopifyProductIndexTablePagination
                                     meta={data.meta}
                                     refetchShopifyProduct={
