@@ -16,10 +16,9 @@ class ShopifyCollectionResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'shopify_collection_id' => $this->shopify_collection_id,
-            'handle' => $this->handle,
             'title' => $this->title,
-            'type' => $this->type
+            'type' => $this->type,
+            'product_count' => $this->product_count,
         ];
     }
 }

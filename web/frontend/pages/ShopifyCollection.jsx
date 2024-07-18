@@ -46,15 +46,15 @@ const ShopifyCollection = () => {
     }
 
     const rowMarkup = data.data.map(
-        ({ id, title, type }, index) => (
+        ({ id, product_count, title, type }, index) => (
             <IndexTable.Row
                 id={id}
                 key={id}
                 selected={selectedResources.includes(id)}
                 position={index}
             >
-                <IndexTable.Cell>{id}</IndexTable.Cell>
                 <IndexTable.Cell>{title}</IndexTable.Cell>
+                <IndexTable.Cell>{product_count}</IndexTable.Cell>
                 <IndexTable.Cell>
                     <Badge tone="attention">{capitalize(type)}</Badge>
                 </IndexTable.Cell>
@@ -64,19 +64,7 @@ const ShopifyCollection = () => {
 
     return (
         <Page fullWidth>
-            <TitleBar
-                title={t("ShopifyCollection.title")}
-                primaryAction={{
-                    content: t("ShopifyCollection.primaryAction"),
-                    onAction: () => console.log("Primary action"),
-                }}
-                secondaryActions={[
-                    {
-                        content: t("ShopifyCollection.secondaryAction"),
-                        onAction: () => console.log("Secondary action"),
-                    },
-                ]}
-            />
+            <TitleBar title={t("ShopifyCollection.title")} />
             <Layout>
                 <Layout.Section>
                     <LegacyCard>
@@ -88,11 +76,11 @@ const ShopifyCollection = () => {
                                     ? "All"
                                     : selectedResources.length
                             }
-                            onSelectionChange={handleSelectionChange}
+                            selectable={false}
                             headings={[
-                                { title: "ID" },
                                 { title: "Title" },
-                                { title: "Type",},
+                                { title: "Total Products" },
+                                { title: "Type" },
                             ]}
                             pagination={{
                                 hasNext: true,

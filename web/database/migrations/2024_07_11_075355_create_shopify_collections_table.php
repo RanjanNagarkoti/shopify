@@ -20,6 +20,7 @@ class CreateShopifyCollectionsTable extends Migration
             $table->string('handle');
             $table->string('title');
             $table->string('type');
+            $table->bigInteger('product_count')->nullable();
             $table->timestamps();
             $table->foreign('session_id')->references('id')->on('sessions')->onDelete('cascade');
         });

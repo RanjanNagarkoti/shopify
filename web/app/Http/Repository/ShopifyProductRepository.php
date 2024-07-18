@@ -2,104 +2,114 @@
 
 namespace App\Http\Repository;
 
-use Shopify\Clients\Rest;
-use Illuminate\Support\Facades\Log;
+use App\Models\Session;
+use App\Models\ShopifyCollection;
+use App\Models\ShopifyProduct;
 
 class ShopifyProductRepository
 {
     /**
-     * Parses the link header and returns an array of links with their relation types as keys.
+     * Updates or saves a Shopify product.
      *
-     * @param string $linkHeader The link header string.
-     * @return array An array of links with their relation types as keys.
-     */
-    public function parseLinkHeader($linkHeader)
-    {
-        $links = [];
-        $parts = explode(',', $linkHeader);
-
-        foreach ($parts as $part) {
-            $section = explode(';', $part);
-            $url = trim($section[0], ' <>');
-            $rel = false;
-
-            if (isset($section[1])) {
-                $rel = trim(str_replace('rel=', '', $section[1]), ' "');
-            }
-
-            if ($rel) {
-                $links[$rel] = $url;
-            }
-        }
-
-        return $links;
-    }
-
-
-    /**
-     * Checks if there is a next page available.
-     *
-     * @param string $link The link header string.
-     * @return int Returns 1 if there is a next page, 0 otherwise.
-     */
-    public function hasNextPage($link)
-    {
-        $links = $this->parseLinkHeader($link);
-        return isset($links['next']) ? 1 : 0;
-    }
-
-
-    /**
-     * Checks if there is a previous page available.
-     *
-     * @param string $link The link header string.
-     * @return int Returns 1 if there is a previous page, 0 otherwise.
-     */
-    public function hasPreviousPage($link)
-    {
-        $links = $this->parseLinkHeader($link);
-        return isset($links['previous']) ? 1 : 0;
-    }
-
-
-    /**
-     * Throttles the request to Shopify if we have reached the API call limit.
-     *
-     * @param Session $session The session object.
+     * @param array $product The product data.
+     * @param \App\Models\Session $session The session object.
+     * @param string $shop The Shopify shop URL.
      * @return void
      */
-    public function throttleRequestIfNeeded($session)
+    public function updateOrSaveProduct($product, $session, $shop, $collectionID)
     {
-        $header = $this->getShopifyAPICallLimit($session);
+        $session = Session::where('session_id', $session->getId())->first();
+        $storeName = explode('.', $shop)[0];
 
-        if ($header) {
-            list($callsMade, $limit) = explode('/', $header);
-            Log::debug('Calls made: ' . $callsMade . ' Limit: ' . $limit);
-            $remainingCalls = $limit - $callsMade;
+        $shopify_url = "https://admin.shopify.com/store/$storeName/products/";
 
-            if ($remainingCalls <= 5) {
-                sleep(5);
-            }
+        $product = ShopifyProduct::updateOrCreate(
+            [
+                'shopify_product_id' => $product['id']
+            ],
+            [
+                'session_id' => $session->id,
+                'shopify_product_id' => $product['id'],
+                'title' => $product['title'],
+                'description' => $product['body_html'],
+                'handle' => $product['handle'],
+                'vendor' => $product['vendor'],
+                'product_type' => $product['product_type'],
+                'tags' => $product['tags'],
+                'status' => $product['status'],
+                'image_src' => $product['image'] ? $product['image']['src'] : null,
+                'shopify_url' => $shopify_url . $product['id'],
+            ]
+        );
+
+        $collection = ShopifyCollection::where('shopify_collection_id', $collectionID)->first();
+
+        if (!$product->shopifyCollections()->where('collection_id', $collection->id)->exists()) {
+            $product->shopifyCollections()->attach($collection->id);
         }
     }
 
-
     /**
-     * Retrieves the Shopify API call limit for the current session.
+     * Updates or saves a Shopify product with its variants.
      *
-     * @param Session $session The session object.
-     * @return string|null The API call limit as a string, or null if not found.
+     * @param array $product The product data.
+     * @param \App\Models\Session $session The session object.
+     * @param string $shop The Shopify shop.
+     * @return void
      */
-    private function getShopifyAPICallLimit($session)
+    public function updateOrSaveProductWithVariants($product, $session, $shop)
     {
-        $client = new Rest($session->getShop(), $session->getAccessToken());
-        $response = $client->get('products', [], ['limit' => 1]);
-        $headers = $response->getHeaders();
+        $session = Session::where('session_id', $session->getId())->first();
+        $storeName = explode('.', $shop)[0];
 
-        if (isset($headers['x-shopify-shop-api-call-limit'][0])) {
-            return $headers['x-shopify-shop-api-call-limit'][0];
+        $shopify_url = "https://admin.shopify.com/store/$storeName/products/";
+
+        $shopifyProduct = ShopifyProduct::updateOrCreate(
+            [
+                'shopify_product_id' => $product['id']
+            ],
+            [
+                'session_id' => $session->id,
+                'shopify_product_id' => $product['id'],
+                'title' => $product['title'],
+                'description' => $product['body_html'],
+                'handle' => $product['handle'],
+                'vendor' => $product['vendor'],
+                'product_type' => $product['product_type'],
+                'tags' => $product['tags'],
+                'status' => $product['status'],
+                'image_src' => $product['image'] ? $product['image']['src'] : null,
+                'shopify_url' => $shopify_url . $product['id'],
+            ]
+        );
+
+        foreach ($product['variants'] as $variant) {
+            $options = [
+                'option1' => $variant['option1'] ?? null,
+                'option2' => $variant['option2'] ?? null,
+                'option3' => $variant['option3'] ?? null,
+            ];
+
+            $shopifyProduct->shopifyProductVariations()->updateOrCreate(
+                [
+                    'product_id' => $shopifyProduct['id'],
+                    'shopify_variation_id' => $variant['id'],
+                ],
+                [
+                    'product_id' => $shopifyProduct['id'],
+                    'session_id' => $session->id,
+                    'shopify_product_id' => $variant['product_id'],
+                    'shopify_variation_id' => $variant['id'],
+                    'title' => $variant['title'],
+                    'price' => $variant['price'],
+                    'sku' => $variant['sku'],
+                    'inventory_policy' => $variant['inventory_policy'],
+                    'variation_options' => json_encode($options),
+                    'image_id' => $variant['image_id'],
+                    'inventory_item_id' => $variant['inventory_item_id'],
+                    'inventory_quantity' => $variant['inventory_quantity'],
+                ]
+            );
         }
-
-        return null;
     }
 }
