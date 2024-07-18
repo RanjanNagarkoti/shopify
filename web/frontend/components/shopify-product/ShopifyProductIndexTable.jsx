@@ -23,8 +23,8 @@ const ShopifyProductIndexTable = ({ products }) => {
                 itemCount={products.length}
                 headings={[
                     { title: "Product" },
-                    { title: "Vendor" },
-                    { title: "Product Type" },
+                    { title: "Inventory" },
+                    { title: "Sku" },
                     { title: "Tags" },
                     { title: "View On" },
                     { title: "Status" },

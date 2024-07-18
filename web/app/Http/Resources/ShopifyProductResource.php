@@ -27,6 +27,8 @@ class ShopifyProductResource extends JsonResource
             'status' => $this->status,
             'image_src' => $this->image_src,
             'shopify_url' => $this->shopify_url,
+            'inventory_count' => $this->shopify_product_variations_inventory,
+            'sku' => $this->shopify_product_variations_sku,
             'variants' => ShopifyProductVariantResource::collection($this->shopifyProductVariations),
         ];
     }

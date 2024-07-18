@@ -9,6 +9,7 @@ import {
     Box,
     Avatar,
     Text,
+    TextContainer,
 } from "@shopify/polaris";
 import { ImageMajor, ViewMinor } from "@shopify/polaris-icons";
 import { shopifyImage } from "../../assets";
@@ -20,6 +21,15 @@ const ShopifyProductIndexTableRow = ({ product, index }) => {
     const [open, setOpen] = useState(false);
 
     const handleToggle = useCallback(() => setOpen((open) => !open), []);
+
+    function truncate(text, maxLength = 10) {
+        if (text.length <= maxLength) {
+            return text;
+        } else {
+            return text.substring(0, maxLength) + "...";
+        }
+    }
+
     return (
         <>
             <IndexTable.Row id={product.id} key={product.id} position={index}>
@@ -39,25 +49,30 @@ const ShopifyProductIndexTableRow = ({ product, index }) => {
                         </Text>
                     </Stack>
                 </IndexTable.Cell>
-                <IndexTable.Cell>{product.vendor}</IndexTable.Cell>
+                <IndexTable.Cell>{product.inventory_count}</IndexTable.Cell>
                 <IndexTable.Cell>
-                    {product.product_type ? product.product_type : "N/A"}
+                    {product.sku ? truncate(product.sku, 15) : "N/A"}
                 </IndexTable.Cell>
                 <IndexTable.Cell>
-                    <Stack
-                        wrap={true}
-                        spacing="extraTight"
-                        distribution="fill"
-                        alignment="center"
-                    >
-                        {product.tags ? (
-                            product.tags.map((tag, index) => (
-                                <Tag key={index}>{tag}</Tag>
-                            ))
-                        ) : (
-                            <Tag>N/A</Tag>
-                        )}
-                    </Stack>
+                    {product.tags &&
+                    product.tags.filter((tag) => tag.trim() !== "").length >
+                        0 ? (
+                        <Stack
+                            wrap={true}
+                            spacing="extraTight"
+                            distribution="fill"
+                            alignment="center"
+                        >
+                            {product.tags
+                                .filter((tag) => tag.trim() !== "") // Filter out empty strings
+                                .slice(0, 5)
+                                .map((tag, index) => (
+                                    <Tag key={index}>{tag}</Tag>
+                                ))}
+                        </Stack>
+                    ) : (
+                        <Tag>N/A</Tag>
+                    )}
                 </IndexTable.Cell>
                 <IndexTable.Cell>
                     <Link url={product.shopify_url} external>
