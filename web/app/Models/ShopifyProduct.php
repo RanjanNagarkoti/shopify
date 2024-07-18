@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class ShopifyProduct extends Model
 {
@@ -43,6 +44,22 @@ class ShopifyProduct extends Model
 
 
     /**
+     * Get the shopify collections associated with the shopify product.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function shopifyCollections(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            ShopifyCollection::class,
+            'collection_product',
+            'product_id',
+            'collection_id'
+        )->withTimestamps();
+    }
+
+
+    /**
      * Get the total inventory quantity information for the Shopify product variations.
      *
      * @return string|null
@@ -64,6 +81,12 @@ class ShopifyProduct extends Model
         }
     }
 
+
+    /**
+     * Get the SKUs of the Shopify product variations associated with the Shopify product.
+     *
+     * @return string|null
+     */
     public function getShopifyProductVariationsSkuAttribute(): string|null
     {
         $skus = $this->shopifyProductVariations->pluck('sku')->filter()->unique()->toArray();

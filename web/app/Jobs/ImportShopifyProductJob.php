@@ -24,12 +24,14 @@ class ImportShopifyProductJob implements ShouldQueue
      */
     public $session;
 
+    
     /**
      * The ShopifyRepository instance.
      *
      * @var \App\Http\Repository\ShopifyProductRepository $shopifyProductRepository
      */
     public $shopifyProductRepository;
+
 
     /**
      * Create a new job instance.
@@ -42,6 +44,7 @@ class ImportShopifyProductJob implements ShouldQueue
         $this->shopifyProductRepository = new ShopifyProductRepository;
     }
 
+
     /**
      * Execute the job.
      *
@@ -52,10 +55,8 @@ class ImportShopifyProductJob implements ShouldQueue
         $hasNextProductPage = 1;
         $since_id = 0;
 
-        $session = Session::where('session_id', $this->session->getId())->first();
-
         while ($hasNextProductPage > 0) {
-            $this->shopifyProductRepository->throttleRequestIfNeeded($this->session);
+            throttleRequestIfNeeded($this->session);
 
             try {
                 $shop = $this->session->getShop();
@@ -67,63 +68,13 @@ class ImportShopifyProductJob implements ShouldQueue
 
                 $headers = $result->getHeaders();
                 $result = $result->getDecodedBody();
-                $storeName = explode('.', $shop)[0];
-
-                $shopify_url = "https://admin.shopify.com/store/$storeName/products/";
 
                 foreach ($result['products'] as $product) {
-                    $shopifyProduct = ShopifyProduct::updateOrCreate(
-                        [
-                            'shopify_product_id' => $product['id']
-                        ],
-                        [
-                            'session_id' => $session->id,
-                            'shopify_product_id' => $product['id'],
-                            'title' => $product['title'],
-                            'description' => $product['body_html'],
-                            'handle' => $product['handle'],
-                            'vendor' => $product['vendor'],
-                            'product_type' => $product['product_type'],
-                            'tags' => $product['tags'],
-                            'status' => $product['status'],
-                            'image_src' => $product['image'] ? $product['image']['src'] : null,
-                            'shopify_url' => $shopify_url . $product['id'],
-                        ]
-                    );
-
-                    foreach ($product['variants'] as $variant) {
-                        $options = [
-                            'option1' => $variant['option1'] ?? null,
-                            'option2' => $variant['option2'] ?? null,
-                            'option3' => $variant['option3'] ?? null,
-                        ];
-
-                        $shopifyProduct->shopifyProductVariations()->updateOrCreate(
-                            [
-                                'product_id' => $shopifyProduct['id'],
-                                'shopify_variation_id' => $variant['id'],
-                            ],
-                            [
-                                'product_id' => $shopifyProduct['id'],
-                                'session_id' => $session->id,
-                                'shopify_product_id' => $variant['product_id'],
-                                'shopify_variation_id' => $variant['id'],
-                                'title' => $variant['title'],
-                                'price' => $variant['price'],
-                                'sku' => $variant['sku'],
-                                'inventory_policy' => $variant['inventory_policy'],
-                                'variation_options' => json_encode($options),
-                                'image_id' => $variant['image_id'],
-                                'inventory_item_id' => $variant['inventory_item_id'],
-                                'inventory_quantity' => $variant['inventory_quantity'],
-                            ]
-                        );
-                    }
+                    $this->shopifyProductRepository->updateOrSaveProductWithVariants($product, $this->session, $shop);
                 }
 
                 $since_id = $result['products'][array_key_last($result['products'])]['id'];
-                $hasNextProductPage = $this->shopifyProductRepository->hasNextPage($headers['link'][0]);
-
+                $hasNextProductPage = hasNextPage($headers['link'][0]);
             } catch (Exception $e) {
                 Log::error('Error while getting products: ' . $e->getMessage());
                 $hasNextProductPage = 0;
