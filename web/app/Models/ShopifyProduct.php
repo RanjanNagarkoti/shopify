@@ -26,6 +26,7 @@ class ShopifyProduct extends Model
         'tags',
         'status',
         'image_src',
+        'shopify_url',
     ];
 
     /**

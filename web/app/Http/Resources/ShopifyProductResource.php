@@ -26,6 +26,7 @@ class ShopifyProductResource extends JsonResource
             'tags' => explode(',', $this->tags),
             'status' => $this->status,
             'image_src' => $this->image_src,
+            'shopify_url' => $this->shopify_url,
             'variants' => ShopifyProductVariantResource::collection($this->shopifyProductVariations),
         ];
     }

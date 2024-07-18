@@ -58,7 +58,8 @@ class ImportShopifyProductJob implements ShouldQueue
             $this->shopifyProductRepository->throttleRequestIfNeeded($this->session);
 
             try {
-                $client = new Rest($this->session->getShop(), $this->session->getAccessToken());
+                $shop = $this->session->getShop();
+                $client = new Rest($shop, $this->session->getAccessToken());
                 $result = $client->get('products', [], [
                     'limit' => 250,
                     'since_id' => $since_id
@@ -66,6 +67,9 @@ class ImportShopifyProductJob implements ShouldQueue
 
                 $headers = $result->getHeaders();
                 $result = $result->getDecodedBody();
+                $storeName = explode('.', $shop)[0];
+
+                $shopify_url = "https://admin.shopify.com/store/$storeName/products/";
 
                 foreach ($result['products'] as $product) {
                     $shopifyProduct = ShopifyProduct::updateOrCreate(
@@ -82,7 +86,8 @@ class ImportShopifyProductJob implements ShouldQueue
                             'product_type' => $product['product_type'],
                             'tags' => $product['tags'],
                             'status' => $product['status'],
-                            'image_src' => $product['image'] ? $product['image']['src'] : null
+                            'image_src' => $product['image'] ? $product['image']['src'] : null,
+                            'shopify_url' => $shopify_url . $product['id'],
                         ]
                     );
 
