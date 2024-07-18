@@ -25,6 +25,7 @@ class CreateShopifyProductsTable extends Migration
             $table->string("tags")->nullable();
             $table->string("status")->nullable();
             $table->string('image_src')->nullable();
+            $table->string('shopify_url')->nullable();
             $table->timestamps();
             $table->foreign('session_id')->references('id')->on('sessions')->onDelete('cascade');
         });
