@@ -5,6 +5,7 @@ use App\Http\Controllers\ShopifyProductController;
 use App\Http\Controllers\ShopifyCollectionController;
 use App\Http\Controllers\Subscription\GetSubscriptionDetailController;
 use App\Exceptions\ShopifyProductCreatorException;
+use App\Http\Controllers\Subscription\RedirectToPricingConfirmationController;
 use App\Lib\AuthRedirection;
 use App\Lib\EnsureBilling;
 use App\Lib\ProductCreator;
@@ -69,6 +70,17 @@ Route::get('/api/auth/callback', function (Request $request) {
     $shop = Utils::sanitizeShopDomain($request->query('shop'));
 
     $response = Registry::register('/api/webhooks', Topics::APP_UNINSTALLED, $shop, $session->getAccessToken());
+    $pricing = Registry::register('/api/webhooks', Topics::APP_SUBSCRIPTIONS_UPDATE, $shop, $session->getAccessToken());
+
+    if ($pricing->isSuccess()) {
+        Log::debug("Registered APP_SUBSCRIPTIONS_UPDATE webhook for shop $shop");
+    } else {
+        Log::error(
+            "Failed to register APP_SUBSCRIPTIONS_UPDATE webhook for shop $shop with response body: " .
+                print_r($pricing->getBody(), true)
+        );
+    }
+
     if ($response->isSuccess()) {
         Log::debug("Registered APP_UNINSTALLED webhook for shop $shop");
     } else {
@@ -83,7 +95,7 @@ Route::get('/api/auth/callback', function (Request $request) {
         list($hasPayment, $confirmationUrl) = EnsureBilling::check($session, Config::get('shopify.billing'));
 
         if (!$hasPayment) {
-            $redirectUrl = $confirmationUrl;
+            return redirect($redirectUrl . '/Pricing')->with('confirmationUrl', $confirmationUrl);
         }
     }
 
@@ -155,3 +167,5 @@ Route::apiResource('/api/shopify-collections', ShopifyCollectionController::clas
 Route::get('/api/csrf-token', fn () => ['csrf_token' => csrf_token()]);
 
 Route::apiResource('/api/shopify-products', ShopifyProductController::class)->middleware('shopify.auth');
+
+Route::get('/api/pricing-confirmation', RedirectToPricingConfirmationController::class)->middleware('shopify.auth');

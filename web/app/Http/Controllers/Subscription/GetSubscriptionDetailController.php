@@ -2,9 +2,6 @@
 
 namespace App\Http\Controllers\Subscription;
 
-use Illuminate\Support\Facades\Bus;
-use App\Jobs\ImportShopifyProductJob;
-use App\Jobs\SyncShopifyCollectionsJob;
 use App\Http\Resources\SubscribtionDetailResource;
 use App\Lib\EnsureBilling;
 use App\Http\Controllers\Controller;
@@ -29,12 +26,6 @@ class GetSubscriptionDetailController extends Controller
         if ($subscription[0] !== true) {
             return false;
         }
-
-        Bus::chain([
-            new SyncShopifyCollectionsJob($session, "smart_collections"),
-            new SyncShopifyCollectionsJob($session, "custom_collections"),
-            new ImportShopifyProductJob($session),
-        ])->dispatch();
 
         return new SubscribtionDetailResource((object) $config);
     }

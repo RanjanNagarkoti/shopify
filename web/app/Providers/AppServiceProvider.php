@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Lib\DbSessionStorage;
+use App\Lib\Handlers\AppSubscriptionsUpdate;
 use App\Lib\Handlers\AppUninstalled;
 use App\Lib\Handlers\Privacy\CustomersDataRequest;
 use App\Lib\Handlers\Privacy\CustomersRedact;
@@ -56,6 +57,7 @@ class AppServiceProvider extends ServiceProvider
         URL::forceScheme('https');
 
         Registry::addHandler(Topics::APP_UNINSTALLED, new AppUninstalled());
+        Registry::addHandler(Topics::APP_SUBSCRIPTIONS_UPDATE, new AppSubscriptionsUpdate());
 
         /*
          * This sets up the mandatory privacy webhooks. You’ll need to fill in the endpoint to be used by your app in
